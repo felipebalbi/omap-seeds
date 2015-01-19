@@ -30,18 +30,28 @@ for file in $(ls ../omap-seeds/*.config)
 do
 	config=$(basename $file)
 	DIR=$basedir/$head/$config
-	for i in $(seq 1 5);
+
+	export ARCH="arm"
+	export CROSS_COMPILE="arm-linux-"
+	export KCONFIG_ALLCONFIG="$file"
+
+	TDIR=$DIR/allnoconfig
+
+	mkdir -p $TDIR
+
+	make allnoconfig 1> $TDIR/stdout.txt 2> $TDIR/stderr.txt;
+	cp .config $TDIR/defconfig;
+	make -j16 1>> $TDIR/stdout.txt 2>> $TDIR/stderr.txt
+
+	for i in $(seq 0 9);
 	do
-		export ARCH="arm"
-		export CROSS_COMPILE="arm-linux-"
-		export KCONFIG_ALLCONFIG="$file"
 		TDIR=$DIR/randconfig$i
 
 		mkdir -p $TDIR
 
-		make randconfig;
+		make randconfig 1> $TDIR/stdout.txt 2> $TDIR/stderr.txt;
 		cp .config $TDIR/defconfig;
-		make 1> $TDIR/stdout.txt 2> $TDIR/stderr.txt
+		make -j16 1>> $TDIR/stdout.txt 2>> $TDIR/stderr.txt
 	done
 done
 ```
