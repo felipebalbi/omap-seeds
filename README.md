@@ -22,24 +22,26 @@ Quick HOWTO on usage:
 Here is the simplest, crapiest script you can use (from the kernel
 directory) for this:
 
-	head=$(git describe)
-	basedir="logs"
+```sh
+head=$(git describe)
+basedir="logs"
 
-	for file in $(ls ../omap-seeds/*.config)
+for file in $(ls ../omap-seeds/*.config)
+do
+	config=$(basename $file)
+	DIR=$basedir/$head/$config
+	for i in $(seq 1 5);
 	do
-		config=$(basename $file)
-		DIR=$basedir/$head/$config
-		for i in $(seq 1 5);
-		do
-			export ARCH="arm"
-			export CROSS_COMPILE="arm-linux-"
-			export KCONFIG_ALLCONFIG="$file"
-			TDIR=$DIR/randconfig$i
+		export ARCH="arm"
+		export CROSS_COMPILE="arm-linux-"
+		export KCONFIG_ALLCONFIG="$file"
+		TDIR=$DIR/randconfig$i
 
-			mkdir -p $TDIR
+		mkdir -p $TDIR
 
-			make randconfig;
-			cp .config $TDIR/defconfig;
-			make 1> $TDIR/stdout.txt 2> $TDIR/stderr.txt
-		done
+		make randconfig;
+		cp .config $TDIR/defconfig;
+		make 1> $TDIR/stdout.txt 2> $TDIR/stderr.txt
 	done
+done
+```
