@@ -23,35 +23,37 @@ Here is the simplest, crapiest script you can use (from the kernel
 directory) for this:
 
 ```sh
+#!/bin/sh
+
 head=$(git describe)
 basedir="logs"
 
-for file in $(ls ../omap-seeds/*.config)
+for file in ../omap-seeds/*.config
 do
-	config=$(basename $file)
-	DIR=$basedir/$head/$config
+	config=$(basename "$file")
+	DIR="$basedir"/"$head"/"$config"
 
 	export ARCH="arm"
-	export CROSS_COMPILE="arm-linux-"
+	export CROSS_COMPILE="arm-linux-gnueabihf-"
 	export KCONFIG_ALLCONFIG="$file"
 
-	TDIR=$DIR/allnoconfig
+	TDIR="$DIR"/allnoconfig
 
-	mkdir -p $TDIR
+	mkdir -p "$TDIR"
 
-	make allnoconfig 1> $TDIR/stdout.txt 2> $TDIR/stderr.txt;
-	cp .config $TDIR/defconfig;
-	make -j16 1>> $TDIR/stdout.txt 2>> $TDIR/stderr.txt
+	make allnoconfig 1> "$TDIR"/stdout.txt 2> "$TDIR"/stderr.txt;
+	cp .config "$TDIR"/defconfig;
+	make -j16 1>> "$TDIR"/stdout.txt 2>> "$TDIR"/stderr.txt
 
 	for i in $(seq 0 9);
 	do
-		TDIR=$DIR/randconfig$i
+		TDIR="$DIR"/randconfig$i
 
-		mkdir -p $TDIR
+		mkdir -p "$TDIR"
 
-		make randconfig 1> $TDIR/stdout.txt 2> $TDIR/stderr.txt;
-		cp .config $TDIR/defconfig;
-		make -j16 1>> $TDIR/stdout.txt 2>> $TDIR/stderr.txt
+		make randconfig 1> "$TDIR"/stdout.txt 2> "$TDIR"/stderr.txt;
+		cp .config "$TDIR"/defconfig;
+		make -j16 1>> "$TDIR"/stdout.txt 2>> "$TDIR"/stderr.txt
 	done
 done
 ```
